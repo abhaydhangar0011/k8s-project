@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: 
+  name: mysql-sts
+
+spec:
+  serviceName: mariadb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadbl
+
+  template:
+    metadata:
+      labels:
+        app: mariadbl
+    spec:
+      containers:
+        - name: mysql-container
+          image: abhaydhan/mariadb
+          ports:
+            - containerPort: 3306
+          
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: DB_PASS
+
+            - name: MYSQL_DATABASE
+              value: student_db
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+  
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  
+  selector:
+   app: mariadbl
+
+
+
+
+
+
+
